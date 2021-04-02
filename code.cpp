@@ -92,6 +92,7 @@ int main() {
 
 int selection(Data** people, bool* token)
 {
+    bool out_range = true;
     std::cout << "Please choose which to use." << std::endl;
     for(int i = 0;i < 10;i++)
     {
@@ -109,7 +110,11 @@ int selection(Data** people, bool* token)
         std::cin.ignore(10000, '\n');
         return -1;
     }
-    if(people[number-1] == nullptr)
+
+    for(int i = 1;i <= 10;i++)
+        if(i == number) out_range = false;
+
+    if(people[number-1] == nullptr || out_range)
         *token = false;
     else
         *token = true;
