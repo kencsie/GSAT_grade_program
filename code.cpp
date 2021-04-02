@@ -4,11 +4,11 @@
 
 class Data{
 public:
-    friend Data* add(const bool*);
-    friend int selection(Data** people, bool* token);
+    friend Data* add(const bool*, const bool*);
+    friend int selection(Data** people, bool*, bool*);
     friend void compare_main(Data *input1, Data *input2);
-    void print(const bool*);
-    void edit(const bool*);
+    void print(const bool*, const bool*);
+    void edit(const bool*, const bool*);
 
     Data() : grades(5,0) {};
 
@@ -17,8 +17,8 @@ private:
     std::string name;
 };
 
-Data* add(const bool*);
-int selection(Data**, bool*);
+Data* add(const bool*, const bool*);
+int selection(Data**, bool*, bool*);
 void compare_main(Data *input1, Data *input2);
 int compare_sub(const int, const int);
 
@@ -27,7 +27,7 @@ int main() {
     Data* people[10] = {nullptr};
     int option = 0, buffer = 0;
     int compare_buffer = 0, compare_buffer2 = 0;
-    bool token = false;
+    bool file_vaild = false, out_of_range = false;
 
     do {
         std::cout << "Please type your command" << std::endl
@@ -36,40 +36,41 @@ int main() {
 
         switch (option) {
             case 1: {
-                buffer = selection(&people[0], &token);
-                if (token == 1 || buffer == -1) break; //input error
+                buffer = selection(&people[0], &file_vaild, &out_of_range);
+                //std::cout << file_vaild << std::endl;
+                if (file_vaild == 1 || buffer == -1) break; //input error
 
-                people[buffer] = add(&token);
+                people[buffer] = add(&file_vaild, &out_of_range);
                 break;
             }
             case 2:{
-                buffer = selection(&people[0], &token);
-                if (token == 0 || buffer == -1) break; //input error
+                buffer = selection(&people[0], &file_vaild, &out_of_range);
+                if (file_vaild == 0 || buffer == -1) break; //input error
 
-                people[buffer]->edit(&token);
+                people[buffer]->edit(&file_vaild, &out_of_range);
                 break;
 
             }
             case 3: {
-                buffer = selection(&people[0], &token);
-                if (token == 0 || buffer == -1) break; //input error
+                buffer = selection(&people[0], &file_vaild, &out_of_range);
+                if (file_vaild == 0 || buffer == -1) break; //input error
 
-                people[buffer]->print(&token);
+                people[buffer]->print(&file_vaild, &out_of_range);
                 break;
             }
             case 4: {
-                buffer = selection(&people[0], &token);
-                if (token == 0 || buffer == -1) break; //input error
+                buffer = selection(&people[0], &file_vaild, &out_of_range);
+                if (file_vaild == 0 || buffer == -1) break; //input error
 
                 delete people[buffer];
                 people[buffer] = nullptr;
                 break;
             }
             case 5: {
-                compare_buffer = selection(&people[0], &token);
-                if(token == 0 || compare_buffer == -1) break; //input error
-                compare_buffer2 = selection(&people[0], &token);
-                if (token == 0 || compare_buffer2 == -1) break; //input error
+                compare_buffer = selection(&people[0], &file_vaild, &out_of_range);
+                if(file_vaild == 0 || compare_buffer == -1 || out_of_range == 1) break; //input error
+                compare_buffer2 = selection(&people[0], &file_vaild, &out_of_range);
+                if (file_vaild == 0 || compare_buffer2 == -1 || out_of_range == 1) break; //input error
 
                 compare_main(people[compare_buffer], people[compare_buffer2]);
                 break;
@@ -90,9 +91,8 @@ int main() {
     return 0;
 }
 
-int selection(Data** people, bool* token)
+int selection(Data** people, bool* file_vaild, bool* out_of_range)
 {
-    bool out_range = true;
     std::cout << "Please choose which to use." << std::endl;
     for(int i = 0;i < 10;i++)
     {
@@ -102,6 +102,7 @@ int selection(Data** people, bool* token)
             std::cout << i+1 << ":" << people[i]->name << std::endl;
     }
     int number = 0;
+    *out_of_range = true;
     std::cin >> number;
     if(std::cin.fail() == 1)
     {
@@ -112,18 +113,24 @@ int selection(Data** people, bool* token)
     }
 
     for(int i = 1;i <= 10;i++)
-        if(i == number) out_range = false;
+        if(i == number) *out_of_range = false;
 
-    if(people[number-1] == nullptr || out_range)
-        *token = false;
+    if(people[number-1] == nullptr)
+        *file_vaild = false;
     else
-        *token = true;
+        *file_vaild = true;
     return number-1;
 }
 
-Data* add(const bool* token)
+Data* add(const bool* file_vaild, const bool* out_of_range)
 {
-    if((*token))
+    if(*out_of_range)
+    {
+        std::cout << "Sorry, this space is invaild" << std::endl;
+        return nullptr;
+    }
+
+    if(*file_vaild)
     {
         std::cout << "Sorry, this space is used." << std::endl;
         return nullptr;
@@ -142,9 +149,15 @@ Data* add(const bool* token)
     return buffer;
 }
 
-void Data::edit(const bool* token)
+void Data::edit(const bool* file_vaild, const bool* out_of_range)
 {
-    if(!(*token))
+    if(*out_of_range)
+    {
+        std::cout << "Sorry, this space is invaild." << std::endl;
+        return ;
+    }
+
+    if(!(*file_vaild))
     {
         std::cout << "Sorry, this space is empty." << std::endl;
         return ;
@@ -176,9 +189,15 @@ void Data::edit(const bool* token)
 
 }
 
-void Data::print(const bool* token)
+void Data::print(const bool* file_vaild, const bool* out_of_range)
 {
-    if(!(*token))
+    if(*out_of_range)
+    {
+        std::cout << "Sorry, this space is invaild." << std::endl;
+        return ;
+    }
+
+    if(!(*file_vaild))
     {
         std::cout << "Sorry, this space is empty." << std::endl;
         return ;
