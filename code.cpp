@@ -64,6 +64,7 @@ int main() {
 
                 delete people[buffer];
                 people[buffer] = nullptr;
+                std::cout << "Delete complete." << std::endl;
                 break;
             }
             case 5: {
